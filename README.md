@@ -8,7 +8,7 @@ import TaskPaper
 let outline = TaskPaper("Hello world")
 ```
 
-A `TaskPaper` object holds an array of `Item`'s. An item can be a note, a project, or a task.
+A `TaskPaper` object holds an array of `Item`s. An item can be a note, a project, or a task.
 
 ```Swift
 for item in outline.items {
@@ -33,5 +33,5 @@ if let tag = item["done"] {
 	print(tag.value)
 }
 
-// "7-5-17"
+// "Optional("7-5-17")"
 ```
