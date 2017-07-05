@@ -4,7 +4,7 @@ import XCTest
 class TaskPaperTests: XCTestCase {
 	
 	func testBenchmark() {
-		let str = "one two three four five six seven eight nine ten"
+		let str = "one:\n\t- two\n\t- three\n four five six seven eight nine\n\t- ten"
 		var input = str
 		
 		for _ in 0..<73000 {

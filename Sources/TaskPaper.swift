@@ -13,8 +13,6 @@ struct TaskPaper {
 	
 	var document: Document
 	
-	var items: [Item] = []
-	
 	init(_ string: String, options: Options=[]) {
 		self.document = Document()
 		
@@ -36,15 +34,17 @@ struct TaskPaper {
 			// parse tags first, since bodyRange excludes trailing tags
 			let tags = tagsForLine(input: input, lineRange: lineRange)
 			
+			// remove trailing tags from bodyRange
 			if let trailingRange = trailingRangeForLine(input: input, lineRange: lineRange, tags: tags) {
 				bodyRange.length -= trailingRange.length
 			}
 			
+			// parse item and add attributes
 			let item = itemForLine(input: input, line: line, lineRange: lineRange, indentRange: indentRange, bodyRange: bodyRange)
 			item.addAttributes(tags)
 			
+			// attach item
 			let container = appropriateContainer(for: item, level: indentRange.length)
-			
 			container.addChild(item)
 		}
 		
