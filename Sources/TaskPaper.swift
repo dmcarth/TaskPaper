@@ -6,17 +6,21 @@ let taskRegex = try! NSRegularExpression(pattern: "^([\\-+*]\\s)", options: [])
 let projectRegex = try! NSRegularExpression(pattern: ":(?:\n|$)", options: [])
 let tagRegex = try! NSRegularExpression(pattern: "(?:^|\\s+)@([A-z0-9]+)(?:\\(([^()]*)\\))?(?=\\s|$)", options: [])
 
-struct TaskPaper {
+public struct TaskPaper {
 	
-	struct Options: OptionSet {
-		let rawValue: Int
+	public struct Options: OptionSet {
+		public let rawValue: Int
 		
-		static let normalize = Options(rawValue: 1 << 0)
+		public init(rawValue: Int) {
+			self.rawValue = rawValue
+		}
+		
+		public static let normalize = Options(rawValue: 1 << 0)
 	}
 	
-	var items: [Item] = []
+	public var items: [Item] = []
 	
-	init(_ string: String, options: Options=[]) {
+	public init(_ string: String, options: Options=[]) {
 		var input = string
 		
 		if options.contains(.normalize) {
@@ -25,6 +29,10 @@ struct TaskPaper {
 		
 		parse(input as NSString)
 	}
+	
+}
+
+extension TaskPaper {
 	
 	mutating func parse(_ input: NSString) {
 		
@@ -80,7 +88,7 @@ struct TaskPaper {
 			return nil
 		}
 		
-		guard NSMaxRange(lastAttr.sourceRange) == NSMaxRange(bodyRange) else {
+		guard NSMaxRange(lastTag.sourceRange) == NSMaxRange(bodyRange) else {
 			return nil
 		}
 		

@@ -1,29 +1,29 @@
 
 import Foundation
 
-class Item {
+public final class Item {
 	
-	enum ItemType {
+	public enum ItemType {
 		case note
 		case project
 		case task
 	}
 	
-	weak var parent: Container?
+	public weak var parent: Item?
 	
-	var children: [Item] = []
+	public var children: [Item] = []
 	
-	var type: ItemType
+	public var type: ItemType
 	
 	/// Range of line describing item in original text
-	var sourceRange: NSRange
+	public var sourceRange: NSRange
 	
 	/// Range of line excluding trailing tags and leading syntax
-	var contentRange: NSRange
+	public var contentRange: NSRange
 	
-	var tags: Set<Tag> = []
+	public var tags: Set<Tag> = []
 	
-	init(type: ItemType, sourceRange: NSRange, contentRange: NSRange) {
+	public init(type: ItemType, sourceRange: NSRange, contentRange: NSRange) {
 		self.type = type
 		self.sourceRange = sourceRange
 		self.contentRange = contentRange
@@ -39,7 +39,7 @@ extension Item {
 		children.append(child)
 	}
 	
-	func enumerate(_ handler: (Item)->Void) {
+	public func enumerate(_ handler: (Item)->Void) {
 		handler(self)
 		
 		for child in children {
@@ -51,7 +51,7 @@ extension Item {
 
 extension Item {
 	
-	var sourceRangeIncludingChildren: NSRange {
+	public var sourceRangeIncludingChildren: NSRange {
 		var length = sourceRange.length
 		
 		if let lastChildRange = children.last?.sourceRange {
@@ -65,7 +65,7 @@ extension Item {
 
 extension Item {
 	
-	subscript(_ tagName: String) -> Tag? {
+	public subscript(_ tagName: String) -> Tag? {
 		// hack: this only works because attribute.hashValue == attribute.name.hashValue
 		let dummyTag = Tag(name: tagName, sourceRange: NSMakeRange(0, 0))
 		if let index = tags.index(of: dummyTag) {
