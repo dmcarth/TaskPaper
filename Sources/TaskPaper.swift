@@ -1,6 +1,8 @@
 
 import Foundation
 
+let indentRegex = try! NSRegularExpression(pattern: "^\t*", options: [])
+let taskRegex = try! NSRegularExpression(pattern: "^([\\-+*]\\s)", options: [])
 let tagRegex = try! NSRegularExpression(pattern: "(?:^|\\s+)@([A-z0-9]+)(?:\\(([^()])*)\\)?(?=\\s|$)", options: [])
 
 struct TaskPaper {
@@ -26,7 +28,7 @@ struct TaskPaper {
 	mutating func parse(_ input: NSString) {
 		
 		for (lineRange, line) in input.lines {
-			let indentRange = input.range(of: "^\t*", options: .regularExpression, range: lineRange)
+			let indentRange = indentRegex.rangeOfFirstMatch(in: input as String, options: [], range: lineRange)
 			var bodyRange = NSMakeRange(NSMaxRange(indentRange), lineRange.length - indentRange.length)
 			
 			// parse tags first, since bodyRange excludes trailing tags
@@ -89,18 +91,18 @@ struct TaskPaper {
 	}
 	
 	func itemForLine(input: NSString, line: NSString, lineRange: NSRange, indentRange: NSRange, bodyRange: NSRange) -> Item {
-		let taskRange = input.range(of: "^([\\-+*]\\s)", options: .regularExpression, range: bodyRange)
+		if line.hasSuffix(":") {
+			let contentRange = NSMakeRange(NSMaxRange(indentRange), lineRange.length - 1 - NSMaxRange(indentRange))
+			
+			return Item(type: .project, sourceRange: lineRange, contentRange: contentRange)
+		}
+		
+		let taskRange = taskRegex.rangeOfFirstMatch(in: input as String, options: [], range: bodyRange)
 		
 		if taskRange.location != NSNotFound {
 			let contentRange = NSMakeRange(NSMaxRange(taskRange), lineRange.length - NSMaxRange(taskRange))
 			
 			return Item(type: .task, sourceRange: lineRange, contentRange: contentRange)
-		}
-		
-		if line.hasSuffix(":") {
-			let contentRange = NSMakeRange(NSMaxRange(indentRange), lineRange.length - 1 - NSMaxRange(indentRange))
-			
-			return Item(type: .project, sourceRange: lineRange, contentRange: contentRange)
 		}
 		
 		let contentRange = NSMakeRange(NSMaxRange(indentRange), lineRange.length - NSMaxRange(indentRange))
