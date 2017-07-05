@@ -1,7 +1,7 @@
 
 import Foundation
 
-class Item: Container {
+class Item {
 	
 	enum ItemType {
 		case note
@@ -27,6 +27,24 @@ class Item: Container {
 		self.type = type
 		self.sourceRange = sourceRange
 		self.contentRange = contentRange
+	}
+	
+}
+
+extension Item {
+	
+	func addChild(_ child: Item) {
+		child.parent = self
+		
+		children.append(child)
+	}
+	
+	func enumerate(_ handler: (Item)->Void) {
+		handler(self)
+		
+		for child in children {
+			child.enumerate(handler)
+		}
 	}
 	
 }
