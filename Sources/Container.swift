@@ -20,9 +20,3 @@ extension Container {
 	}
 	
 }
-
-class Document: Container {
-	
-	var children: [Item] = []
-	
-}

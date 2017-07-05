@@ -11,11 +11,9 @@ struct TaskPaper {
 		static let normalize = Options(rawValue: 1 << 0)
 	}
 	
-	var document: Document
+	var items: [Item] = []
 	
 	init(_ string: String, options: Options=[]) {
-		self.document = Document()
-		
 		var input = string
 		
 		if options.contains(.normalize) {
@@ -25,7 +23,7 @@ struct TaskPaper {
 		parse(input as NSString)
 	}
 	
-	func parse(_ input: NSString) {
+	mutating func parse(_ input: NSString) {
 		
 		for (lineRange, line) in input.lines {
 			let indentRange = input.range(of: "^\t*", options: .regularExpression, range: lineRange)
@@ -43,9 +41,7 @@ struct TaskPaper {
 			let item = itemForLine(input: input, line: line, lineRange: lineRange, indentRange: indentRange, bodyRange: bodyRange)
 			item.addAttributes(tags)
 			
-			// attach item
-			let container = appropriateContainer(for: item, level: indentRange.length)
-			container.addChild(item)
+			attachItem(item, itemLevel: indentRange.length)
 		}
 		
 	}
@@ -112,20 +108,35 @@ struct TaskPaper {
 		return Item(type: .note, sourceRange: lineRange, contentRange: contentRange)
 	}
 	
-	func appropriateContainer(for item: Item, level itemLevel: Int) -> Container {
-		var container: Container = document
+	mutating func attachItem(_ item: Item, itemLevel: Int) {
+		var container: Item? = nil
 		var containerLevel = 0
 		
-		while let lastChild = container.children.last {
+		// find container
+		if let lastItem = items.last {
+			
 			if containerLevel < itemLevel {
-				container = lastChild
+				container = lastItem
 				containerLevel += 1
-			} else {
-				break
 			}
+			
+			while let lastChild = container?.children.last {
+				if containerLevel < itemLevel {
+					container = lastChild
+					containerLevel += 1
+				} else {
+					break
+				}
+			}
+			
 		}
 		
-		return container
+		// attach
+		if let container = container {
+			container.addChild(item)
+		} else {
+			items.append(item)
+		}
 	}
 	
 }
