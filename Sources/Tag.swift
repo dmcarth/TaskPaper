@@ -1,7 +1,7 @@
 
 import Foundation
 
-class Attribute {
+class Tag {
 	
 	var name: String
 	
@@ -17,22 +17,22 @@ class Attribute {
 	
 }
 
-extension Attribute: CustomStringConvertible {
+extension Tag: CustomStringConvertible {
 	
 	var description: String {
 		let valueString = value ?? "nil"
-		return "Attribute(name: \(name), value: \(valueString), sourceRange: NSRange(location: \(sourceRange.location), length: \(sourceRange.length)))"
+		return "\(type(of: self))(name: \(name), value: \(valueString), sourceRange: NSRange(location: \(sourceRange.location), length: \(sourceRange.length)))"
 	}
 	
 }
 
-extension Attribute: Hashable {
+extension Tag: Hashable {
 	
 	var hashValue: Int {
 		return name.hashValue
 	}
 	
-	static func ==(lhs: Attribute, rhs: Attribute) -> Bool {
+	static func ==(lhs: Tag, rhs: Tag) -> Bool {
 		return lhs.name == rhs.name
 	}
 	

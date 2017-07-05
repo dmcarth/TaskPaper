@@ -21,7 +21,7 @@ class Item: Container {
 	/// Range of line excluding trailing tags and leading syntax
 	var contentRange: NSRange
 	
-	var attributes: Set<Attribute> = []
+	var tags: Set<Tag> = []
 	
 	init(type: ItemType, sourceRange: NSRange, contentRange: NSRange) {
 		self.type = type
@@ -47,18 +47,18 @@ extension Item {
 
 extension Item {
 	
-	subscript(_ attributeName: String) -> Attribute? {
+	subscript(_ tagName: String) -> Tag? {
 		// hack: this only works because attribute.hashValue == attribute.name.hashValue
-		let dummyAttribue = Attribute(name: attributeName, sourceRange: NSMakeRange(0, 0))
-		if let index = attributes.index(of: dummyAttribue) {
-			return attributes[index]
+		let dummyTag = Tag(name: tagName, sourceRange: NSMakeRange(0, 0))
+		if let index = tags.index(of: dummyTag) {
+			return tags[index]
 		}
 		
 		return nil
 	}
 	
-	func addAttributes(_ attrs: [Attribute]) {
-		attributes.formUnion(attrs)
+	func addTags(_ newTags: [Tag]) {
+		tags.formUnion(newTags)
 	}
 	
 }

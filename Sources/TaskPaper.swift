@@ -48,15 +48,15 @@ struct TaskPaper {
 			
 			// parse item and add attributes
 			let item = itemForLine(input: input, line: line, lineRange: lineRange, indentRange: indentRange, bodyRange: bodyRange)
-			item.addAttributes(tags)
+			item.addTags(tags)
 			
 			attachItem(item, itemLevel: indentRange.length)
 		}
 		
 	}
 	
-	func tagsForLine(input: NSString, lineRange: NSRange) -> [Attribute] {
-		var attributes: [Attribute] = []
+	func tagsForLine(input: NSString, lineRange: NSRange) -> [Tag] {
+		var tags: [Tag] = []
 		
 		tagRegex.enumerateMatches(in: input as String, options: [], range: lineRange) { (result, flags, stop) in
 			guard let result = result else { return }
@@ -67,16 +67,16 @@ struct TaskPaper {
 				value = input.substring(with: result.rangeAt(2))
 			}
 			
-			let attr = Attribute(name: name, value: value, sourceRange: result.range)
+			let tag = Tag(name: name, value: value, sourceRange: result.range)
 			
-			attributes.append(attr)
+			tags.append(tag)
 		}
 		
-		return attributes
+		return tags
 	}
 	
-	func trailingRangeForLine(input: NSString, bodyRange: NSRange, tags: [Attribute]) -> NSRange? {
-		guard let lastAttr = tags.last else {
+	func trailingRangeForLine(input: NSString, bodyRange: NSRange, tags: [Tag]) -> NSRange? {
+		guard let lastTag = tags.last else {
 			return nil
 		}
 		
@@ -84,11 +84,11 @@ struct TaskPaper {
 			return nil
 		}
 		
-		var trailRange = lastAttr.sourceRange
-		for attr in tags.reversed() {
-			if NSMaxRange(attr.sourceRange) == trailRange.location {
-				trailRange.location = attr.sourceRange.location
-				trailRange.length += attr.sourceRange.length
+		var trailRange = lastTag.sourceRange
+		for tag in tags.reversed() {
+			if NSMaxRange(tag.sourceRange) == trailRange.location {
+				trailRange.location = tag.sourceRange.location
+				trailRange.length += tag.sourceRange.length
 			} else {
 				break
 			}
