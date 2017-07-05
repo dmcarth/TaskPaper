@@ -3,7 +3,8 @@ import Foundation
 
 let indentRegex = try! NSRegularExpression(pattern: "^\t*", options: [])
 let taskRegex = try! NSRegularExpression(pattern: "^([\\-+*]\\s)", options: [])
-let tagRegex = try! NSRegularExpression(pattern: "(?:^|\\s+)@([A-z0-9]+)(?:\\(([^()])*)\\)?(?=\\s|$)", options: [])
+let projectRegex = try! NSRegularExpression(pattern: ":(?:\n|$)", options: [])
+let tagRegex = try! NSRegularExpression(pattern: "(?:^|\\s+)@([A-z0-9]+)(?:\\(([^()]*)\\))?(?=\\s|$)", options: [])
 
 struct TaskPaper {
 	
@@ -31,11 +32,17 @@ struct TaskPaper {
 			let indentRange = indentRegex.rangeOfFirstMatch(in: input as String, options: [], range: lineRange)
 			var bodyRange = NSMakeRange(NSMaxRange(indentRange), lineRange.length - indentRange.length)
 			
+			// trim newlines
+			let newlineRange = input.rangeOfCharacter(from: CharacterSet.newlines, options: .backwards, range: lineRange)
+			if newlineRange.location != NSNotFound, NSMaxRange(newlineRange) == NSMaxRange(lineRange) {
+				bodyRange.length -= newlineRange.length
+			}
+			
 			// parse tags first, since bodyRange excludes trailing tags
 			let tags = tagsForLine(input: input, lineRange: lineRange)
 			
 			// remove trailing tags from bodyRange
-			if let trailingRange = trailingRangeForLine(input: input, lineRange: lineRange, tags: tags) {
+			if let trailingRange = trailingRangeForLine(input: input, bodyRange: bodyRange, tags: tags) {
 				bodyRange.length -= trailingRange.length
 			}
 			
@@ -55,9 +62,9 @@ struct TaskPaper {
 			guard let result = result else { return }
 			
 			let name = input.substring(with: result.rangeAt(1))
-			var value: String? = input.substring(with: result.rangeAt(2))
-			if value!.isEmpty {
-				value = nil
+			var value: String? = nil
+			if result.rangeAt(2).length > 0 {
+				value = input.substring(with: result.rangeAt(2))
 			}
 			
 			let attr = Attribute(name: name, value: value, sourceRange: result.range)
@@ -68,12 +75,12 @@ struct TaskPaper {
 		return attributes
 	}
 	
-	func trailingRangeForLine(input: NSString, lineRange: NSRange, tags: [Attribute]) -> NSRange? {
+	func trailingRangeForLine(input: NSString, bodyRange: NSRange, tags: [Attribute]) -> NSRange? {
 		guard let lastAttr = tags.last else {
 			return nil
 		}
 		
-		guard NSMaxRange(lastAttr.sourceRange) == NSMaxRange(lineRange) else {
+		guard NSMaxRange(lastAttr.sourceRange) == NSMaxRange(bodyRange) else {
 			return nil
 		}
 		
@@ -91,21 +98,23 @@ struct TaskPaper {
 	}
 	
 	func itemForLine(input: NSString, line: NSString, lineRange: NSRange, indentRange: NSRange, bodyRange: NSRange) -> Item {
-		if line.hasSuffix(":") {
-			let contentRange = NSMakeRange(NSMaxRange(indentRange), lineRange.length - 1 - NSMaxRange(indentRange))
-			
-			return Item(type: .project, sourceRange: lineRange, contentRange: contentRange)
-		}
-		
 		let taskRange = taskRegex.rangeOfFirstMatch(in: input as String, options: [], range: bodyRange)
 		
 		if taskRange.location != NSNotFound {
-			let contentRange = NSMakeRange(NSMaxRange(taskRange), lineRange.length - NSMaxRange(taskRange))
+			let contentRange = NSMakeRange(NSMaxRange(taskRange), NSMaxRange(bodyRange) - NSMaxRange(taskRange))
 			
 			return Item(type: .task, sourceRange: lineRange, contentRange: contentRange)
 		}
 		
-		let contentRange = NSMakeRange(NSMaxRange(indentRange), lineRange.length - NSMaxRange(indentRange))
+		let projectRange = projectRegex.rangeOfFirstMatch(in: input as String, options: [], range: bodyRange)
+		
+		if projectRange.location != NSNotFound {
+			let contentRange = NSMakeRange(NSMaxRange(indentRange), NSMaxRange(bodyRange) - 1 - NSMaxRange(indentRange))
+			
+			return Item(type: .project, sourceRange: lineRange, contentRange: contentRange)
+		}
+		
+		let contentRange = NSMakeRange(NSMaxRange(indentRange), NSMaxRange(bodyRange) - NSMaxRange(indentRange))
 		
 		return Item(type: .note, sourceRange: lineRange, contentRange: contentRange)
 	}
