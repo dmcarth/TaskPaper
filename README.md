@@ -8,7 +8,7 @@ import TaskPaper
 let outline = TaskPaper("Hello world")
 ```
 
-A `TaskPaper` object holds an array of `Item`s. An item can be a note, a project, or a task.
+A `TaskPaper` object holds an array of `Item`'s. An item can be a note, a project, or a task.
 
 ```Swift
 for item in outline.items {
@@ -18,15 +18,17 @@ for item in outline.items {
 // ".note", ".project", ".task""
 ```
 
-Each `Item` represents a tree. For example, a project `Item` might contain other projects and tasks.
+Each `Item` represents a tree. For example, a project `Item` might contain other projects and tasks. Because of this, `Item` doubles as an AST with `sourceRange` and `contentRange` properties.
 
 ```Swift
 projectItem.enumerate { (item) ->
-	// do something with each item in the tree
+	print(item.sourceRange)
 }
+
+// "{5, 12}"
 ```
 
-TaskPaper tags are stored in a `tags` property that can be accessed via subscript. Each `Tag` has an optional value string.
+TaskPaper tags are stored in a `tags` property that can be accessed via subscript. Each `Tag`, then, has an optional value string.
 
 ```Swift
 if let tag = item["done"] {
