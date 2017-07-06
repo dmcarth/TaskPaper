@@ -54,7 +54,7 @@ extension Item {
 	public var sourceRangeIncludingChildren: NSRange {
 		var length = sourceRange.length
 		
-		if let lastChildRange = children.last?.sourceRange {
+		if let lastChildRange = children.last?.sourceRangeIncludingChildren {
 			length = NSMaxRange(lastChildRange) - sourceRange.location
 		}
 		
