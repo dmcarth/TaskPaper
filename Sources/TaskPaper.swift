@@ -1,11 +1,6 @@
 
 import Foundation
 
-let indentRegex = try! NSRegularExpression(pattern: "^\t*", options: [])
-let taskRegex = try! NSRegularExpression(pattern: "^([\\-+*]\\s)", options: [])
-let projectRegex = try! NSRegularExpression(pattern: ":(?:\n|$)", options: [])
-let tagRegex = try! NSRegularExpression(pattern: "(?:^|\\s+)@([A-z0-9]+)(?:\\(([^()]*)\\))?(?=\\s|$)", options: [])
-
 public struct TaskPaper {
 	
 	public struct Options: OptionSet {
@@ -77,20 +72,6 @@ extension TaskPaper {
 			
 			tags.append(tag)
 		}
-		
-//		tagRegex.enumerateMatches(in: input as String, options: [], range: lineRange) { (result, flags, stop) in
-//			guard let result = result else { return }
-//			
-//			let name = input.substring(with: result.rangeAt(1))
-//			var value: String? = nil
-//			if result.rangeAt(2).location != NSNotFound {
-//				value = input.substring(with: result.rangeAt(2))
-//			}
-//			
-//			let tag = Tag(name: name, value: value, sourceRange: result.range)
-//			
-//			tags.append(tag)
-//		}
 		
 		return tags
 	}
