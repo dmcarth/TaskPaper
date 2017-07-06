@@ -37,7 +37,7 @@ extension TaskPaper {
 	mutating func parse(_ input: NSString) {
 		
 		for (lineRange, line) in input.lines {
-			let indentRange = indentRegex.rangeOfFirstMatch(in: input as String, options: [], range: lineRange)
+			let indentRange = scanForIndent(in: input, range: lineRange)[0]
 			var bodyRange = NSMakeRange(NSMaxRange(indentRange), lineRange.length - indentRange.length)
 			
 			// trim newlines
@@ -66,19 +66,31 @@ extension TaskPaper {
 	func tagsForLine(input: NSString, lineRange: NSRange) -> [Tag] {
 		var tags: [Tag] = []
 		
-		tagRegex.enumerateMatches(in: input as String, options: [], range: lineRange) { (result, flags, stop) in
-			guard let result = result else { return }
-			
-			let name = input.substring(with: result.rangeAt(1))
+		for result in scanForTags(in: input, range: lineRange) {
+			let name = input.substring(with: result[1])
 			var value: String? = nil
-			if result.rangeAt(2).length > 0 {
-				value = input.substring(with: result.rangeAt(2))
+			if result[2].location != NSNotFound {
+				value = input.substring(with: result[2])
 			}
 			
 			let tag = Tag(name: name, value: value, sourceRange: result.range)
 			
 			tags.append(tag)
 		}
+		
+//		tagRegex.enumerateMatches(in: input as String, options: [], range: lineRange) { (result, flags, stop) in
+//			guard let result = result else { return }
+//			
+//			let name = input.substring(with: result.rangeAt(1))
+//			var value: String? = nil
+//			if result.rangeAt(2).location != NSNotFound {
+//				value = input.substring(with: result.rangeAt(2))
+//			}
+//			
+//			let tag = Tag(name: name, value: value, sourceRange: result.range)
+//			
+//			tags.append(tag)
+//		}
 		
 		return tags
 	}
@@ -106,17 +118,13 @@ extension TaskPaper {
 	}
 	
 	func itemForLine(input: NSString, line: NSString, lineRange: NSRange, indentRange: NSRange, bodyRange: NSRange) -> Item {
-		let taskRange = taskRegex.rangeOfFirstMatch(in: input as String, options: [], range: bodyRange)
-		
-		if taskRange.location != NSNotFound {
+		if let taskRange = scanForTask(in: input, range: bodyRange)?[0] {
 			let contentRange = NSMakeRange(NSMaxRange(taskRange), NSMaxRange(bodyRange) - NSMaxRange(taskRange))
 			
 			return Item(type: .task, sourceRange: lineRange, contentRange: contentRange)
 		}
 		
-		let projectRange = projectRegex.rangeOfFirstMatch(in: input as String, options: [], range: bodyRange)
-		
-		if projectRange.location != NSNotFound {
+		if let _ = scanForProject(in: input, range: bodyRange)?[0] {
 			let contentRange = NSMakeRange(NSMaxRange(indentRange), NSMaxRange(bodyRange) - 1 - NSMaxRange(indentRange))
 			
 			return Item(type: .project, sourceRange: lineRange, contentRange: contentRange)
