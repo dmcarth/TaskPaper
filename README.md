@@ -18,14 +18,14 @@ for item in outline.items {
 // ".note", ".project", ".task""
 ```
 
-Each `Item` represents a tree. For example, a project `Item` might contain other projects and tasks. Because of this, `Item` doubles as an AST with `sourceRange` and `contentRange` properties.
+Each `Item` is a tree of items, representing tasks, subtasks, and so on. To traverse the tree by hand, use the `children` property on `Item`. Otherwise, use `enumerate(_:)`. The tree also doubles as an AST, with `sourceRange` and `contentRange` properties.
 
 ```Swift
 projectItem.enumerate { (item) ->
     print(item.sourceRange)
 }
 
-// "{5, 12}"
+// "{0, 5}" "{5, 12}" "{17, 6}"
 ```
 
 TaskPaper tags are stored in a `tags` property that can be accessed via subscript. Each `Tag`, then, has an optional value string.
@@ -37,3 +37,5 @@ if let tag = item["done"] {
 
 // "Optional("7-5-17")"
 ```
+
+The parser does not currently have any concept of standard TaskPaper tags like @due or @done. The task of parsing dates and time spans is, currently, left to the user.
