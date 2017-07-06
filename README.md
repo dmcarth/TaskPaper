@@ -12,7 +12,7 @@ A `TaskPaper` object holds an array of `Item`'s. An item can be a note, a projec
 
 ```Swift
 for item in outline.items {
-	print(item.type)
+    print(item.type)
 }
 
 // ".note", ".project", ".task""
@@ -22,7 +22,7 @@ Each `Item` represents a tree. For example, a project `Item` might contain other
 
 ```Swift
 projectItem.enumerate { (item) ->
-	print(item.sourceRange)
+    print(item.sourceRange)
 }
 
 // "{5, 12}"
@@ -32,7 +32,7 @@ TaskPaper tags are stored in a `tags` property that can be accessed via subscrip
 
 ```Swift
 if let tag = item["done"] {
-	print(tag.value)
+    print(tag.value)
 }
 
 // "Optional("7-5-17")"
