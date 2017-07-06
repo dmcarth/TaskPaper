@@ -84,7 +84,6 @@ func scanForTags(in string: NSString, range: NSRange) -> [ScanResult] {
 		let c = string.character(at: i)
 		
 		// leading whitespace
-		var matchStart = i
 		if i == range.location {
 			
 		} else if c.isWhitespace {
@@ -155,7 +154,7 @@ func scanForTags(in string: NSString, range: NSRange) -> [ScanResult] {
 		let match = ScanResult(range: NSMakeRange(cursor, i - cursor), groups: [group1, group2])
 		matches.append(match)
 		
-		cursor = i + 1
+		cursor += match.range.length
 	}
 	
 	return matches
