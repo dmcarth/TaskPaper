@@ -1,6 +1,13 @@
 # TaskPaper
 A small Swift library for parsing TaskPaper outlines. It is based on the same parsing algorithm used in [birch-outline](https://github.com/jessegrosjean/birch-outline).
 
+## Installation
+Add this line to your dependencies in `Package.swift`.
+
+```Swift
+.Package(url: "https://github.com/dmcarth/TaskPaper.git", majorVersion: 0, minor: 0)
+```
+
 ## Usage
 ```Swift
 import TaskPaper
