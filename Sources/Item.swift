@@ -3,7 +3,7 @@ import Foundation
 
 public final class Item {
 	
-	public enum ItemType: String {
+	public enum ItemType {
 		case note
 		case project
 		case task
