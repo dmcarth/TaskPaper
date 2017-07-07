@@ -97,7 +97,7 @@ func scanForTags(in string: NSString, range: NSRange) -> [ScanResult] {
 		}
 		
 		// @
-		guard string.character(at: i) == UTF16.at else {
+		guard i < NSMaxRange(range), string.character(at: i) == UTF16.at else {
 			cursor += 1
 			continue
 		}
@@ -105,7 +105,7 @@ func scanForTags(in string: NSString, range: NSRange) -> [ScanResult] {
 		i += 1
 		
 		// name
-		guard string.character(at: i).isAlphanumeric else {
+		guard i < NSMaxRange(range), string.character(at: i).isAlphanumeric else {
 			cursor += 1
 			continue
 		}
